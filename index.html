@@ -214,7 +214,8 @@
         <div class="final-modal-content">
             <div class="final-message">I Love You, Bebu! 💖💖</div>
             <button class="claim-button" onclick="claimGift()">Claim your gift my lab💖</button>
-            <img id="tulip" src="" alt="Tulip Bouquet" style="display:none; width:150px;">
+            <!-- Tulip Image for Claim Gift -->
+            <img id="tulip" src="https://via.placeholder.com/150" alt="Tulip Bouquet" style="display:none; width:150px;">
             <button class="close-button" onclick="closeFinalModal()">Close</button>
         </div>
     </div>
@@ -280,45 +281,21 @@
             drawMaze();
         }
 
-        function showModal(question, buttons) {
-            document.getElementById("questionText").innerText = question;
-            const answerButtons = document.getElementById("answerButtons");
-            answerButtons.innerHTML = ''; // Clear previous buttons
-            buttons.forEach(button => {
-                const btn = document.createElement('button');
-                btn.innerText = button.text;
-                btn.onclick = () => button.action(true);
-                answerButtons.appendChild(btn);
+        function showModal(questionText, answers) {
+            document.getElementById("questionText").innerText = questionText;
+            const buttonsContainer = document.getElementById("answerButtons");
+            buttonsContainer.innerHTML = "";
+            answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerText = answer.text;
+                button.onclick = answer.action;
+                buttonsContainer.appendChild(button);
             });
             document.getElementById("questionModal").style.display = "block";
         }
 
-        function closeModal() {
+        function answerValentine() {
             document.getElementById("questionModal").style.display = "none";
-        }
-
-        function answerValentine(answer) {
-            closeModal();
-            showModal("And next year too? ", [
-                { text: "Yes", action: answerNextYear },
-                { text: "Yes", action: answerNextYear }
-            ]);
-        }
-
-        function answerNextYear(answer) {
-            closeModal();
-            showModal("reallyyyyyy?💖💖💖", [
-                { text: "Yes", action: loveForever },
-                { text: "Yes", action: loveForever }
-            ]);
-        }
-
-        function loveForever(answer) {
-            closeModal();
-            showFinalModal(); // Show final modal
-        }
-
-        function showFinalModal() {
             document.getElementById("finalModal").style.display = "block";
         }
 
