@@ -246,30 +246,11 @@
                     ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
                 }
             }
-            ctx.fillStyle = "red"; // Draw goal (red block)
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x * cellSize, player.y * cellSize, cellSize, cellSize);
+
+            ctx.fillStyle = "green";
             ctx.fillRect(goal.x * cellSize, goal.y * cellSize, cellSize, cellSize);
-            ctx.fillStyle = "red"; // Draw player
-            ctx.fillText("❤️", player.x * cellSize + 10, player.y * cellSize + 30);
-        }
-
-        function movePlayer(dx, dy) {
-            let newX = player.x + dx;
-            let newY = player.y + dy;
-            if (maze[newY][newX] === 0) {
-                player.x = newX;
-                player.y = newY;
-            }
-            drawMaze();
-            checkGoal();
-        }
-
-        function checkGoal() {
-            if (player.x === goal.x && player.y === goal.y) {
-                showModal("Can you be my Valentine bebu? 💖", [
-                    { text: "Yes", action: answerValentine },
-                    { text: "Yes", action: answerValentine }
-                ]);
-            }
         }
 
         function startGame() {
@@ -280,54 +261,55 @@
             drawMaze();
         }
 
-        function showModal(question, buttons) {
-            document.getElementById("questionText").innerText = question;
+        function movePlayer(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            if (newX >= 0 && newY >= 0 && newX < maze[0].length && newY < maze.length && maze[newY][newX] === 0) {
+                player.x = newX;
+                player.y = newY;
+                drawMaze();
+                checkGoal();
+            }
+        }
+
+        function checkGoal() {
+            if (player.x === goal.x && player.y === goal.y) {
+                setTimeout(showPopupMessage, 500);
+            }
+        }
+
+        function showPopupMessage() {
+            const questionText = "What is your favorite color?";
+            document.getElementById("questionText").textContent = questionText;
             const answerButtons = document.getElementById("answerButtons");
-            answerButtons.innerHTML = ''; // Clear previous buttons
-            buttons.forEach(button => {
-                const btn = document.createElement('button');
-                btn.innerText = button.text;
-                btn.onclick = () => button.action(true);
-                answerButtons.appendChild(btn);
-            });
+            answerButtons.innerHTML = `
+                <button onclick="answerQuestion('Red')">Red</button>
+                <button onclick="answerQuestion('Blue')">Blue</button>
+                <button onclick="answerQuestion('Green')">Green</button>
+            `;
             document.getElementById("questionModal").style.display = "block";
         }
 
-        function closeModal() {
+        function answerQuestion(answer) {
+            const correctAnswer = "Red";
+            const message = (answer === correctAnswer) ? "Correct! 💖" : "Try again!";
             document.getElementById("questionModal").style.display = "none";
+            alert(message);
+            if (answer === correctAnswer) {
+                showFinalMessage();
+            }
         }
 
-        function answerValentine(answer) {
-            closeModal();
-            showModal("And next year too? ", [
-                { text: "Yes", action: answerNextYear },
-                { text: "Yes", action: answerNextYear }
-            ]);
-        }
-
-        function answerNextYear(answer) {
-            closeModal();
-            showModal("reallyyyyyy?💖💖💖", [
-                { text: "Yes", action: loveForever },
-                { text: "Yes", action: loveForever }
-            ]);
-        }
-
-        function loveForever(answer) {
-            closeModal();
-            showFinalModal(); // Show final modal
-        }
-
-        function showFinalModal() {
+        function showFinalMessage() {
             document.getElementById("finalModal").style.display = "block";
-        }
-
-        function closeFinalModal() {
-            document.getElementById("finalModal").style.display = "none";
         }
 
         function claimGift() {
             document.getElementById("tulip").style.display = "block";
+        }
+
+        function closeFinalModal() {
+            document.getElementById("finalModal").style.display = "none";
         }
     </script>
 </body>
