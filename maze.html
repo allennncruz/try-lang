@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Maze Game 💖</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffe6f2;
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        canvas {
+            border: 5px solid #ff4d79;
+            background: linear-gradient(to bottom, #ffccdd, #ff99cc);
+            display: none;
+            border-radius: 10px;
+        }
+        .controls {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            background-color: #ff4d79;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .envelope-container {
+            cursor: pointer;
+            margin-top: 50px;
+            width: 150px;
+            height: 100px;
+            background-color: #ff4d79;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .envelope-container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-bottom: 50px solid #ff4d79;
+        }
+        .envelope-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-top: 50px solid #ff99cc;
+        }
+        .envelope-text {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1;
+        }
+        .message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4d79;
+            margin-top: 20px;
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+            padding-top: 100px;
+            text-align: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+        .question {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff4d79;
+        }
+        .answer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        #gift-container {
+            display: none;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        #gift-container img {
+            width: 150px;
+        }
+        /* New Modal for "I Love You, Bebu!" */
+        .final-modal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+            padding-top: 100px;
+            text-align: center;
+        }
+        .final-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+        .final-message {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff4d79;
+        }
+        .claim-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #ff4d79;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .close-button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #ff4d79;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="envelope-container" class="envelope-container" onclick="startGame()">
+        <span class="envelope-text">Open 💌</span>
+    </div>
+    <div id="message" class="message">Find your way to my heart! 💘</div>
+    <canvas id="maze" width="400" height="400"></canvas>
+    <div class="controls">
+        <div class="row">
+            <button onclick="movePlayer(0, -1)">⬆️</button>
+        </div>
+        <div class="row">
+            <button onclick="movePlayer(-1, 0)">⬅️</button>
+            <button onclick="movePlayer(1, 0)">➡️</button>
+        </div>
+        <div class="row">
+            <button onclick="movePlayer(0, 1)">⬇️</button>
+        </div>
+    </div>
+    
+    <!-- Modal for Questions -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div id="questionText" class="question"></div>
+            <div id="answerButtons" class="answer-buttons">
+                <!-- Buttons will be inserted dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Final Modal for "I Love You, Bebu!" -->
+    <div id="finalModal" class="final-modal">
+        <div class="final-modal-content">
+            <div class="final-message">I Love You, Bebu! 💖💖</div>
+            <button class="claim-button" onclick="claimGift()">Claim your gift my lab💖</button>
+            <img id="tulip" src="" alt="Tulip Bouquet" style="display:none; width:150px;">
+            <button class="close-button" onclick="closeFinalModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("maze");
+        const ctx = canvas.getContext("2d");
+        const cellSize = 40;
+        const maze = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+            [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+        let player = { x: 1, y: 1 };
+        let goal = { x: 8, y: 8 };
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let row = 0; row < maze.length; row++) {
+                for (let col = 0; col < maze[row].length; col++) {
+                    ctx.fillStyle = maze[row][col] === 1 ? "white" : "pink";
+                    ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+                }
+            }
+            ctx.fillStyle = "red"; // Draw goal (red block)
+            ctx.fillRect(goal.x * cellSize, goal.y * cellSize, cellSize, cellSize);
+            ctx.fillStyle = "red"; // Draw player
+            ctx.fillText("❤️", player.x * cellSize + 10, player.y * cellSize + 30);
+        }
+
+        function movePlayer(dx, dy) {
+            let newX = player.x + dx;
+            let newY = player.y + dy;
+            if (maze[newY][newX] === 0) {
+                player.x = newX;
+                player.y = newY;
+            }
+            drawMaze();
+            checkGoal();
+        }
+
+        function checkGoal() {
+            if (player.x === goal.x && player.y === goal.y) {
+                showModal("Can you be my Valentine bebu? 💖", [
+                    { text: "Yes", action: answerValentine },
+                    { text: "Yes", action: answerValentine }
+                ]);
+            }
+        }
+
+        function startGame() {
+            document.getElementById("envelope-container").style.display = "none";
+            document.getElementById("message").style.display = "block";
+            canvas.style.display = "block";
+            document.querySelector(".controls").style.display = "flex";
+            drawMaze();
+        }
+
+        function showModal(question, buttons) {
+            document.getElementById("questionText").innerText = question;
+            const answerButtons = document.getElementById("answerButtons");
+            answerButtons.innerHTML = ''; // Clear previous buttons
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.innerText = button.text;
+                btn.onclick = () => button.action(true);
+                answerButtons.appendChild(btn);
+            });
+            document.getElementById("questionModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("questionModal").style.display = "none";
+        }
+
+        function answerValentine(answer) {
+            closeModal();
+            showModal("And next year too? ", [
+                { text: "Yes", action: answerNextYear },
+                { text: "Yes", action: answerNextYear }
+            ]);
+        }
+
+        function answerNextYear(answer) {
+            closeModal();
+            showModal("reallyyyyyy?💖💖💖", [
+                { text: "Yes", action: loveForever },
+                { text: "Yes", action: loveForever }
+            ]);
+        }
+
+        function loveForever(answer) {
+            closeModal();
+            showFinalModal(); // Show final modal
+        }
+
+        function showFinalModal() {
+            document.getElementById("finalModal").style.display = "block";
+        }
+
+        function closeFinalModal() {
+            document.getElementById("finalModal").style.display = "none";
+        }
+
+        function claimGift() {
+            document.getElementById("tulip").style.display = "block";
+        }
+    </script>
+</body>
+</html>
